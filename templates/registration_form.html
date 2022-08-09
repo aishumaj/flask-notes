@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} Create User {% endblock %}
+
+{% block content %}
+
+<h1>Create New User</h1>
+
+<form id="user-add-form" method="POST">
+  {{ form.hidden_tag() }}
+
+  {% for field in form
+  if field.widget.input_type != 'hidden' %}
+
+  <p>
+    {{ field.label}}
+    {{ field }}
+
+    {% for error in field.errors %}
+    {{ error }}
+    {% endfor %}
+  </p>
+  {% endfor %}
+  <button type="submit">Create User</button>
+</form>
+
+{% endblock %}
