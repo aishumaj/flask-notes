@@ -1,8 +1,8 @@
-from flask import Flask, redirect, render_template, flash
+from flask import Flask, redirect, render_template, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, User
-from forms import RegisterForm
+from forms import RegisterForm, LoginForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///notes_app'
@@ -29,7 +29,7 @@ def root():
 
 @app.route("/register", methods = ["GET", "POST"])
 def registration_form():
-    """Show registration form to create a user."""
+    """Show registration form to create a user and handle creating user"""
 
     form = RegisterForm()
 
@@ -53,16 +53,29 @@ def registration_form():
     else:
         return render_template("registration_form.html", form = form)
 
-# @app.post("/register")
 
+@app.rout("/login", methods = ["GET", "POST"])
+def login_form():
+    """ Show login form to login user and handle user """
 
+    form = LoginForm()
 
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
 
-# @app.get("/login")
+        user = User.authenticate(username, password)
+        if user:
+            session["user_id"] = user.username  # keep logged in
+            return redirect("/secret")
+        else:
+            form.username.errors = ["Bad name/password"]
 
+    else:
+        return render_template("login_form.html", form = form)
 
+@app.get("/secret")
+def secret():
+    """ Return the text "You made it!" If they get here """
 
-# @app.post("/login")
-
-
-# @app.get("/secret")
+    return "You made it!"
