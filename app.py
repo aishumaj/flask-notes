@@ -88,7 +88,7 @@ def show_user_details(username):
 
     elif session[SESSION_KEY] != username:
         flash("Please don't try to access other users' pages, thank you!")
-        return redirect(f"/users/{session['user_username']}")
+        return redirect(f"/users/{session[SESSION_KEY]}")
 
     user = User.query.get_or_404(username)
     form = CSRFProtectForm() #no data coming in request, so we're making blank form
@@ -115,6 +115,13 @@ def logout_user():
 @app.post("/users/<username>/delete")
 def delete_user(username):
     """Delete user account and all of their notes"""
+    if SESSION_KEY not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
+    elif session[SESSION_KEY] != username:
+        flash("Please don't try to access other users' pages, thank you!")
+        return redirect(f"/users/{session[SESSION_KEY]}")
 
     user = User.query.get_or_404(username)
 
@@ -131,6 +138,14 @@ def delete_user(username):
 @app.route("/users/<username>/notes/add", methods=["GET", "POST"])
 def add_notes(username):
     """Returns add new note form and handles form data on submission."""
+
+    if SESSION_KEY not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
+    elif session[SESSION_KEY] != username:
+        flash("Please don't try to access other users' pages, thank you!")
+        return redirect(f"/users/{session[SESSION_KEY]}")
 
     form = NoteForm()
 
@@ -154,6 +169,15 @@ def update_notes(note_id):
     """ Display note update form and handle submission of note updates."""
 
     note = Note.query.get_or_404(note_id)
+
+    if SESSION_KEY not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
+    elif session[SESSION_KEY] != note.owner:
+        flash("Please don't try to access other users' pages, thank you!")
+        return redirect(f"/users/{session[SESSION_KEY]}")
+
     form = NoteForm(obj=note)
 
     if form.validate_on_submit():
@@ -173,6 +197,14 @@ def delete_note(note_id):
     """ Delete a specific note."""
 
     note = Note.query.get_or_404(note_id)
+
+    if SESSION_KEY not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
+    elif session[SESSION_KEY] != note.owner:
+        flash("Please don't try to access other users' pages, thank you!")
+        return redirect(f"/users/{session[SESSION_KEY]}")
 
     form = CSRFProtectForm()
 
