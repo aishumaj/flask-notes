@@ -4,6 +4,10 @@
 
 {% block content %}
 
+{% for msg in get_flashed_messages() %}
+<p>{{ msg }}</p>
+{% endfor %}
+
 <h1>Create New User</h1>
 
 <form id="user-add-form" method="POST">
@@ -22,6 +26,11 @@
   </p>
   {% endfor %}
   <button type="submit">Create User</button>
+</form>
+<br>
+
+<form>
+  <button formaction="/login" formmethod="GET">Login</button>
 </form>
 
 {% endblock %}
