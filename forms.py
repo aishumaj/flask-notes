@@ -29,3 +29,19 @@ class LoginForm(FlaskForm):
 
 class CSRFProtectForm(FlaskForm):
     """Form just for CSRF Protection"""
+
+class NoteForm(FlaskForm):
+    """Form to create or edit a note"""
+
+    title = StringField("Title",
+        validators = [InputRequired(), Length(max=100)])
+    content = StringField("Content",
+        validators = [InputRequired()])
+
+# class EditNoteForm(FlaskForm):
+#     """Form to update a note"""
+
+#     title = StringField("Title",
+#         validators = [InputRequired(), Length(max=100)])
+#     content = StringField("Content",
+#         validators = [InputRequired()])

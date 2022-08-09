@@ -1,8 +1,8 @@
 from flask import Flask, redirect, render_template, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 
-from models import db, connect_db, User
-from forms import RegisterForm, LoginForm, CSRFProtectForm
+from models import db, connect_db, User, Note
+from forms import RegisterForm, LoginForm, CSRFProtectForm, NoteForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///notes_app'
@@ -111,3 +111,76 @@ def logout_user():
 
 # ask about chrome saying password in data breach popup
 # just happens a lot on local host, dw
+
+@app.post("/users/<username>/delete")
+def delete_user(username):
+    """Delete user account and all of their notes"""
+
+    user = User.query.get_or_404(username)
+
+    form = CSRFProtectForm()
+
+    if form.validate_on_submit():
+        Note.query.filter_by(owner=username).delete()
+        db.session.delete(user)
+        db.session.commit()
+        session.pop(SESSION_KEY, None)
+
+    return redirect("/")
+
+@app.route("/users/<username>/notes/add", methods=["GET", "POST"])
+def add_notes(username):
+    """Returns add new note form and handles form data on submission."""
+
+    form = NoteForm()
+
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+
+        new_note = Note(title = title, content = content, owner = username)
+
+        db.session.add(new_note)
+        db.session.commit()
+
+        flash("New note added!")
+        return redirect(f"/users/{username}")
+
+    else:
+        return render_template("add_note.html", form = form)
+
+@app.route("/notes/<int:note_id>/update", methods=["GET", "POST"])
+def update_notes(note_id):
+    """ Display note update form and handle submission of note updates."""
+
+    note = Note.query.get_or_404(note_id)
+    form = NoteForm(obj=note)
+
+    if form.validate_on_submit():
+        note.title = form.title.data
+        note.content = form.content.data
+
+        db.session.commit()
+
+        flash(f"Note {note.title} updated!")
+        return redirect(f"/users/{note.owner}")
+
+    else:
+        return render_template("edit_note.html", form = form)
+
+@app.post("/notes/<int:note_id>/delete")
+def delete_note(note_id):
+    """ Delete a specific note."""
+
+    note = Note.query.get_or_404(note_id)
+
+    form = CSRFProtectForm()
+
+    if form.validate_on_submit():
+        db.session.delete(note)
+        db.session.commit()
+        flash("Note deleted!")
+        return redirect(f"/users/{note.owner}")
+
+
+

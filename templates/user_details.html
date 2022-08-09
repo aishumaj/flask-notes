@@ -14,9 +14,41 @@
 
 <p>Email is: {{ user.email }}</p>
 
+<h3> Notes:</h3>
+
+<ul>
+    {% for note in user.notes %}
+    <li>{{ note.title }}
+        <small>{{ note.content }}</small>
+        <a href="/notes/{{ note.id }}/update">Edit Note</a>
+        <form action="/notes/{{ note.id }}/delete" method="POST">
+            {{form.hidden_tag()}}
+            <button type="submit">X</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+
+<br><br>
+
+<form action="/users/{{ user.username }}/notes/add" method="GET">
+    <button type="submit">Add Note</button>
+</form>
+
+<br>
+
 <form action="/logout" method="POST">
     {{form.hidden_tag()}}
     <button type="submit">Logout</button>
 </form>
+
+<br>
+
+<form action="/users/{{ user.username }}/delete" method="POST">
+    {{form.hidden_tag()}}
+    <button type="submit">Delete Account</button>
+</form>
+
+
 
 {% endblock %}
