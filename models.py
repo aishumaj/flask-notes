@@ -40,10 +40,20 @@ class User(db.Model):
         """Validate that user exists & password is correct.
         Return user if valid; else return False.
         """
-        
+
         u = cls.query.filter_by(username=username).one_or_none()
         if u and bcrypt.check_password_hash(u.password, password):
             # return user instance
             return u
         else:
             return False
+
+class Note(db.Model):
+    """Notes"""
+
+    __tablename__: "notes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    owner = db.Column(db.String(20), foreign_key = "users.username")

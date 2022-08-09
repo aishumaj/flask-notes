@@ -104,9 +104,9 @@ def logout_user():
     # might be form.data instead of request.form
 
     if form.validate_on_submit():
-        # Remove "user_id" if present, but no errors if it wasn't
+        # Remove SESSION_KEY if present, but no errors if it wasn't
         session.pop(SESSION_KEY, None)
-    
+
     return redirect("/")
 
 # ask about chrome saying password in data breach popup
